@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Montana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <a class="logo" href="/">MONTANA</a>
+    <div class="search-wrap">
+      <input id="searchInput" type="text" placeholder="Søk etter produkter" autocomplete="off" />
+      <button id="searchBtn">Søk</button>
+    </div>
+    <div class="top-icons">
+      <button class="icon-btn" id="userBtn">Konto</button>
+      <button class="icon-btn" id="cartBtn">
+        Handlekurv
+        <span class="cart-badge hidden" id="cartBadge">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div id="noResults" class="no-results hidden">Ingen produkter funnet.</div>
+  <div class="grid" id="productGrid">
+    {% for p in products %}
+    <div class="card"
+         data-id="{{ p.id }}"
+         data-name="{{ p.name }}"
+         data-price="{{ p.price }}"
+         data-stock="{{ p.stock }}"
+         data-image="{{ p.image }}">
+      <div class="card-img">
+        <img src="{{ url_for('static', filename='images/' ~ p.image) }}"
+             alt="{{ p.name }}"
+             loading="lazy">
+      </div>
+      <div class="card-body">
+        <h3>{{ p.name }}</h3>
+        <p class="card-desc">{{ p.description }}</p>
+        <div class="card-row">
+          <span class="price">{{ p.price | int }} kr</span>
+          <span class="stock-tag
+            {% if p.stock == 0 %}out
+            {% elif p.stock <= 4 %}low
+            {% endif %}">
+            {% if p.stock == 0 %}Utsolgt
+            {% elif p.stock <= 4 %}Få igjen
+            {% else %}På lager
+            {% endif %}
+          </span>
+        </div>
+        <button class="add-btn"
+                onclick="addToCart(this)"
+                {% if p.stock == 0 %}disabled{% endif %}>
+          {% if p.stock == 0 %}Utsolgt{% else %}Legg i kurv{% endif %}
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</main>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<script>
+  window.LOGGED_IN = {{ 'true' if user else 'false' }};
+  window.USER_NAME = {{ ('"' ~ user.name ~ '"') | safe if user else 'null' }};
+</script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
